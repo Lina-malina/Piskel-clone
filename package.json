@@ -1,0 +1,30 @@
+{
+  "name": "piskel-clone",
+  "version": "1.0.0",
+  "description": "",
+  "main": "webpack.config.js",
+  "dependencies": {
+    "extract-text-webpack-plugin": "^3.0.2",
+    "optimize-css-assets-webpack-plugin": "^5.0.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.7.7",
+    "@babel/preset-env": "^7.7.7",
+    "babel-loader": "^8.0.6",
+    "eslint": "^6.8.0",
+    "eslint-plugin-vue": "^6.1.2",
+    "vue-loader": "^15.8.3",
+    "vue-template-compiler": "^2.6.11",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.10.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "webpack --watch",
+    "build": "webpack --mode production",
+    "lint": "eslint ./src/screens/canvas/index.js --fix"
+  },
+  "author": "",
+  "license": "ISC"
+}

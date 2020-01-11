@@ -1,0 +1,102 @@
+.row {
+    height: 100vh;
+    background-image: url("background.png");
+    background-size: cover;
+}
+.tool {
+    padding: 10px;
+    border: 2px solid black;
+    border-bottom: none;
+    cursor: pointer;
+    &:hover {
+        background-color: gray;
+    }
+    &:nth-child(4) {
+        border-bottom: 2px solid black;
+    }
+}
+.active {
+    background-color: rgb(189, 189, 189);
+}
+.fas {
+    font-size: 1.5rem;
+}
+.scale {
+    padding: 0px 10px;
+    border: 2px solid black;
+    border-right: none;
+    cursor: pointer;
+    &:hover {
+        background-color: gray;
+    }
+
+    &:last-child {
+        border-right: 2px solid black;
+    }
+}
+#canvas,
+#animation {
+    border: 2px solid black;
+    margin-top: 1rem;
+}
+.color {
+    display: block;
+    -webkit-appearance: none;
+    padding: 0px;
+    height: 50px;
+    width: 55px;
+    border: none;
+}
+
+.color::-webkit-color-swatch-wrapper {
+    padding: 0px;
+}
+.color::-webkit-color-swatch {
+    border: none;
+}
+.frame {
+    position: relative;
+    border: 2px solid black;
+    margin-bottom: 5px;
+}
+.icon {
+    font-size: 1rem;
+}
+.button {
+    position: absolute;
+    &.copy {
+        right: 0%;
+        bottom: 0%;
+    }
+    &.delete {
+        right: 0%;
+    }
+}
+.size {
+    display: block;
+    width: 20px;
+    height: 20px;
+    background-color: black;
+    margin-right: 3px;
+    &:first-child {
+        margin-left: 15px;
+    }
+}
+.px {
+    width: 25px;
+    height: 25px;
+    background-color: white;
+    cursor: pointer;
+}
+.px1 {
+    border: 9px solid black;
+}
+.px2 {
+    border: 7px solid black;
+}
+.px3 {
+    border: 5px solid black;
+}
+.px4 {
+    border: 3px solid black;
+}
