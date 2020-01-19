@@ -40,12 +40,12 @@
     margin-top: 1rem;
 }
 .color {
-    display: block;
+    position: absolute;
     -webkit-appearance: none;
     padding: 0px;
     height: 50px;
-    width: 55px;
-    border: none;
+    width: 50px;
+    border: 1px solid lightblue;
 }
 
 .color::-webkit-color-swatch-wrapper {
@@ -88,15 +88,45 @@
     background-color: white;
     cursor: pointer;
 }
+
 .px1 {
     border: 9px solid black;
 }
+
 .px2 {
     border: 7px solid black;
 }
+
 .px3 {
     border: 5px solid black;
 }
+
 .px4 {
     border: 3px solid black;
+}
+
+.reset-button-container {
+    margin-top: 10px;
+}
+
+#frames {
+    overflow-y: scroll;
+    max-height: 100%;
+}
+
+.color-pickers {
+    position: relative;
+    min-height: 70px;
+}
+
+.color-primary {
+    top: 5px;
+    left: -15px;
+    z-index: 3;
+}
+
+.color-secondary {
+    left: 10px;
+    top: 25px;
+    z-index: 1;
 }

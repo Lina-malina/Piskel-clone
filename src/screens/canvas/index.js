@@ -1,6 +1,14 @@
 import {} from '../../libs/NeuQuant.js';
 import {} from '../../libs/LZWEncoder.js';
 import {} from '../../libs/GIFEncoder.js';
+import * as CONSTANTS from '../../shared/constants.js';
+import * as ENUMS from '../../shared/enums.js';
+import * as KEYS from '../../shared/keys.js';
+
+const LOCAL_STORAGE_KEY = 'data';
+const ANIMATION_CANVAS = 'animation';
+const SAVE_CANVAS = 'saveCanvas';
+const PRIMARY_CANVAS = 'canvas';
 
 new Vue({
   el: '#app',
@@ -8,55 +16,38 @@ new Vue({
     return {
       currentTool: null,
       tools: [
-        {
-          name: 'pen', icon: 'fas fa-pen', id: 'pen', func: this.penTool, key: 'Pen tool (p)',
-        },
-        {
-          name: 'bucket', icon: 'fas fa-fill', id: 'bucket', func: this.bucketTool, key: 'Bucket tool (b)',
-        },
-        {
-          name: 'eraser', icon: 'fas fa-eraser', id: 'eraser', func: this.eraserTool, key: 'Eraser tool (e)',
-        },
-        {
-          name: 'stroke', icon: 'fas fa-pencil-ruler', id: 'stroke', func: this.strokeTool, key: 'Stroke tool (s)',
-        },
+        { func: this.penTool, ...ENUMS.PEN_PROPS },
+        { func: this.bucketTool,  ...ENUMS.BUCKET_PROPS },
+        { func: this.eraserTool, ...ENUMS.ERASER_PROPS },
+        { func: this.strokeTool, ...ENUMS.STROKE_PROPS },
       ],
-      penSizes: [
-        { size: 1, style: 'px1' },
-        { size: 2, style: 'px2' },
-        { size: 3, style: 'px3' },
-        { size: 4, style: 'px4' },
-      ],
+      penSizes: ENUMS.PEN_SIZES,
       currentPenSize: null,
       currentScale: null,
-      primaryColor: '#000000',
-      secondaryColor: '#FF0000',
-      drawingColor: '#000000',
-      scales: [
-        { scale: 32, size: '32x32', id: '32' },
-        { scale: 64, size: '64x64', id: '64' },
-        { scale: 128, size: '128x128', id: '128' },
-      ],
+      primaryColor: CONSTANTS.DEFAULT_PRIMARY_COLOR,
+      secondaryColor: CONSTANTS.DEFAULT_SECONDARY_COLOR,
+      drawingColor: CONSTANTS.DEFAULT_PRIMARY_COLOR,
+      scales: ENUMS.SCALES,
       frames: [],
-      counter: 0,
-      currentFrameNumber: 0,
+      counter: CONSTANTS.INITIAL_COUNTER,
+      currentFrameNumber: CONSTANTS.INITIAL_COUNTER,
       isDrawing: false,
       isLineDrawing: false,
-      lineStartX0: 0,
-      lineStartY0: 0,
-      lastX: 0,
-      lastY: 0,
+      lineStartX0: CONSTANTS.INITIAL_COUNTER,
+      lineStartY0: CONSTANTS.INITIAL_COUNTER,
+      lastX: CONSTANTS.INITIAL_COUNTER,
+      lastY: CONSTANTS.INITIAL_COUNTER,
       canvas: null,
       ctx: null,
-      fps: 12,
-      currentAnimationFrame: 0,
+      fps: CONSTANTS.DEFAULT_FPS,
+      currentAnimationFrame: CONSTANTS.INITIAL_COUNTER,
       animationTimerId: null,
     };
   },
   mounted() {
-    this.canvas = document.getElementById('canvas');
-    this.ctx = this.canvas.getContext('2d');
-    const dataToUse = JSON.parse(localStorage.getItem('data'));
+    this.canvas = document.getElementById(PRIMARY_CANVAS);
+    this.ctx = this.canvas.getContext(CONSTANTS.CANVAS_DIMENSION);
+    const dataToUse = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
     if (dataToUse) {
       this.currentTool = this.tools.find((tool) => tool.id === dataToUse.currentTool.id);
       this.currentPenSize = dataToUse.currentPenSize;
@@ -82,34 +73,37 @@ new Vue({
     }
     this.redraw(this.ctx, this.canvas);
     this.animate();
-    const self = this;
-    document.addEventListener('keydown', (e) => {
-      e.preventDefault();
-      const frameNum = self.currentFrameNumber;
-      if (e.code === 'KeyP') {
-        self.selectTool(self.tools[0]);
-      } else if (e.code === 'KeyB') {
-        self.selectTool(self.tools[1]);
-      } else if (e.code === 'KeyE') {
-        self.selectTool(self.tools[2]);
-      } else if (e.code === 'KeyS' && e.ctrlKey) {
-        self.save();
-      } else if (e.code === 'KeyS') {
-        self.selectTool(self.tools[3]);
-      } else if (e.code === 'ArrowUp') {
-        self.selectFrame(frameNum > 0 ? frameNum - 1 : frameNum);
-      } else if (e.code === 'ArrowDown') {
-        self.selectFrame(frameNum < self.frames.length - 1 ? frameNum + 1 : frameNum);
-      } else if (e.code === 'KeyN' && e.shiftKey) {
-        self.copyFrame(frameNum);
-      } else if (e.code === 'KeyN') {
-        self.addNewFrame();
-      } else if (e.code === 'Delete') {
-        self.deleteFrame(frameNum);
-      }
-    });
+    this.initializeKeyboardShortcuts();
   },
   methods: {
+    initializeKeyboardShortcuts() {
+      const self = this;
+      document.addEventListener('keydown', (e) => {
+        e.preventDefault();
+        const frameNum = self.currentFrameNumber;
+        if (e.code === KEYS.PEN) {
+          self.selectTool(self.tools[0]);
+        } else if (e.code === KEYS.BUCKET) {
+          self.selectTool(self.tools[1]);
+        } else if (e.code === KEYS.ERASER) {
+          self.selectTool(self.tools[2]);
+        } else if (e.code === KEYS.SAVE && e.ctrlKey) {
+          self.save();
+        } else if (e.code === KEYS.STROKE) {
+          self.selectTool(self.tools[3]);
+        } else if (e.code === KEYS.PREVIOUS_FRAME) {
+          self.selectFrame(frameNum > 0 ? frameNum - 1 : frameNum);
+        } else if (e.code === KEYS.NEXT_FRAME) {
+          self.selectFrame(frameNum < self.frames.length - 1 ? frameNum + 1 : frameNum);
+        } else if (e.code === KEYS.COPY_FRAME && e.shiftKey) {
+          self.copyFrame(frameNum);
+        } else if (e.code === KEYS.ADD_FRAME) {
+          self.addNewFrame();
+        } else if (e.code === KEYS.DELETE_FRAME) {
+          self.deleteFrame(frameNum);
+        }
+      });
+    },
     selectTool(tool) {
       this.currentTool = tool;
       this.saveData();
@@ -125,7 +119,7 @@ new Vue({
       this.saveData();
     },
     generateMatrix(n) {
-      return Array.from({ length: n }).fill().map(() => Array.from({ length: n }, () => '#FFF'));
+      return Array.from({ length: n }).fill().map(() => Array.from({ length: n }, () => CONSTANTS.ERASER_COLOR));
     },
     redraw(ctx, canvas) {
       let context = ctx;
@@ -141,25 +135,24 @@ new Vue({
       this.drawLine(this.lastX, this.lastY, x, y);
     },
     eraserTool(x, y) {
-      const whiteColor = '#FFF';
       const i = Math.floor((x / this.canvas.width) * this.currentScale.scale);
       const j = Math.floor((y / this.canvas.width) * this.currentScale.scale);
       const canvasScale = this.canvas.width / this.currentScale.scale;
       const border = this.frames[this.currentFrameNumber].source.length - 1;
       for (let jSource = j; jSource <= Math.min(j + this.currentPenSize, border); jSource += 1) {
         for (let iSource = i; iSource <= Math.min(i + this.currentPenSize, border); iSource += 1) {
-          this.frames[this.currentFrameNumber].source[jSource][iSource] = whiteColor;
+          this.frames[this.currentFrameNumber].source[jSource][iSource] = CONSTANTS.ERASER_COLOR;
         }
       }
-      this.ctx.fillStyle = whiteColor;
+      this.ctx.fillStyle = CONSTANTS.ERASER_COLOR;
       const penWidth = canvasScale * this.currentPenSize;
       this.ctx.fillRect(i * canvasScale, j * canvasScale, penWidth, penWidth);
     },
     drawPixel(i, j) {
       const canvasScale = this.canvas.width / this.currentScale.scale;
       const border = this.frames[this.currentFrameNumber].source.length - 1;
-      for (let jSource = j; jSource <= Math.min(j + this.currentPenSize, border); jSource += 1) {
-        for (let iSource = i; iSource <= Math.min(i + this.currentPenSize, border); iSource += 1) {
+      for (let jSource = j; jSource <= Math.min(j + this.currentPenSize - 1, border); jSource += 1) {
+        for (let iSource = i; iSource <= Math.min(i + this.currentPenSize - 1, border); iSource += 1) {
           this.frames[this.currentFrameNumber].source[jSource][iSource] = this.drawingColor;
         }
       }
@@ -200,7 +193,7 @@ new Vue({
     },
     onMouseDown(e) {
       this.isDrawing = true;
-      if (e.button === 2) {
+      if (e.button === CONSTANTS.SECONDARY_BUTTON) {
         this.drawingColor = this.secondaryColor;
       } else {
         this.drawingColor = this.primaryColor;
@@ -238,11 +231,11 @@ new Vue({
         }
       }
       this.ctx.fillStyle = this.drawingColor;
-      this.ctx.fillRect(0, 0, 512, 512);
+      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.width);
     },
     drawOnFrame(index) {
       let frame = document.querySelector(`.frame:nth-child(${index + 1}) canvas`);
-      let frameCtx = frame.getContext('2d');
+      let frameCtx = frame.getContext(CONSTANTS.CANVAS_DIMENSION);
       this.redraw(frameCtx, frame);
     },
     addNewFrame() {
@@ -278,8 +271,8 @@ new Vue({
       this.saveData();
     },
     drawForAnimation() {
-      let animationCanvas = document.getElementById('animation');
-      let context = animationCanvas.getContext('2d');
+      let animationCanvas = document.getElementById(ANIMATION_CANVAS);
+      let context = animationCanvas.getContext(CONSTANTS.CANVAS_DIMENSION);
       const canvasScale = animationCanvas.width / this.currentScale.scale;
       for (let i = 0; i < this.frames[this.currentAnimationFrame].source.length; i += 1) {
         for (let j = 0; j < this.frames[this.currentAnimationFrame].source[i].length; j += 1) {
@@ -300,11 +293,11 @@ new Vue({
       }, 1000 / self.fps);
     },
     save() {
-      let saveCanvas = document.getElementById('saveCanvas');
-      let context = saveCanvas.getContext('2d');
+      let saveCanvas = document.getElementById(SAVE_CANVAS);
+      let context = saveCanvas.getContext(CONSTANTS.CANVAS_DIMENSION);
       let encoder = new GIFEncoder();
       encoder.setRepeat(0);
-      encoder.setDelay(1000 / this.fps);
+      encoder.setDelay(1000 / this.fps); // 1 second / frames per second
       encoder.start();
       for (let frameNum = 0; frameNum < this.frames.length; frameNum += 1) {
         const canvasScale = saveCanvas.width / this.currentScale.scale;
@@ -317,7 +310,7 @@ new Vue({
         encoder.addFrame(context);
       }
       encoder.finish();
-      encoder.download('yourAwesome.gif');
+      encoder.download(CONSTANTS.EXPORT_FILE_NAME);
     },
     saveData() {
       const dataToSave = {
@@ -331,15 +324,28 @@ new Vue({
         currentFrameNumber: this.currentFrameNumber,
         fps: this.fps,
       };
-      localStorage.setItem('data', JSON.stringify(dataToSave));
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dataToSave));
     },
     toggleFullScreen() {
       if (!document.fullscreenElement) {
-        document.getElementById('animation').requestFullscreen();
+        document.getElementById(ANIMATION_CANVAS).requestFullscreen();
       } else if (document.exitFullscreen) {
         document.exitFullscreen();
       }
     },
+    reset() {
+      this.primaryColor = CONSTANTS.DEFAULT_PRIMARY_COLOR;
+      this.secondaryColor = CONSTANTS.DEFAULT_SECONDARY_COLOR;
+      this.frames = [];
+      this.currentFrameNumber = CONSTANTS.INITIAL_COUNTER;
+      this.fps = CONSTANTS.DEFAULT_FPS;
+      const source = this.generateMatrix(this.currentScale.scale);
+      this.frames.push({ source, id: this.counter });
+      this.redraw(this.ctx, this.canvas);
+      Vue.nextTick(() => {
+        this.drawOnFrame(CONSTANTS.INITIAL_COUNTER);
+      })
+    }
   },
   watch: {
     fps() {

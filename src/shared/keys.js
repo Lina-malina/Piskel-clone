@@ -1,0 +1,10 @@
+export const PEN = 'KeyP',
+    BUCKET = 'KeyB',
+    ERASER = 'KeyE',
+    SAVE = 'KeyS',
+    STROKE = 'KeyS',
+    PREVIOUS_FRAME = 'ArrowUp',
+    NEXT_FRAME = 'ArrowDown',
+    COPY_FRAME = 'KeyN',
+    ADD_FRAME = 'KeyN',
+    DELETE_FRAME = 'Delete'

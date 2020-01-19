@@ -23,8 +23,13 @@
                 <div class="tool" v-for="tool in tools" v-bind:class="{active: currentTool === tool}" v-on:click="selectTool(tool)" :title="tool.key">
                     <i v-bind:class="tool.icon"></i>
                 </div>
-                <input type="color" class="color" id="primaryInput"  v-model="primaryColor">
-                <input type="color" class="color" id="secondaryInput" v-model="secondaryColor">
+                <div class="color-pickers">
+                    <input type="color" class="color color-primary" id="primaryInput"  v-model="primaryColor">
+                    <input type="color" class="color color-secondary" id="secondaryInput" v-model="secondaryColor">
+                </div>
+            </div>
+            <div class="reset-button-container">
+                <button class="btn btn-dark" v-on:click="reset">Reset</button>
             </div>
         </div>
         <div class="col-2 d-flex justify-content-center align-items-center flex-column" id="frames">
